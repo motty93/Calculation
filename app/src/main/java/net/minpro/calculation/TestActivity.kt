@@ -3,6 +3,7 @@ package net.minpro.calculation
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import kotlinx.android.synthetic.main.activity_test.*
 import java.util.*
 
@@ -88,6 +89,27 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val button: Button = v as Button
+
+        when(v?.id) {
+            //クリアボタンだったら消す
+            R.id.buttonc
+                -> textViewAnswer.text = ""
+
+            //マイナスボタン
+            R.id.buttonminus
+                    -> if (textViewAnswer.text.toString() == "")
+                        textViewAnswer.text = "-"
+
+            //0のとき
+            R.id.button0
+                    -> if (textViewAnswer.text.toString() != "0" && textViewAnswer.text.toString() != "-")
+                        textViewAnswer.append(button.text)
+
+            else
+                -> if (textViewAnswer.text.toString() == "0")
+                    textViewAnswer.text = button.text
+                   else textViewAnswer.append(button.text)
+        }
     }
 }
