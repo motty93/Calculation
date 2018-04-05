@@ -148,7 +148,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
-        app:layout_constraintBottom_toTopOf="@+id/answercheck2"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAnswerCheck"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
@@ -276,7 +276,7 @@
     </TableLayout>
 
     <Button
-        android:id="@+id/back"
+        android:id="@+id/buttonBack"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -289,10 +289,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/answercheck2" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonAnswerCheck" />
 
     <Button
-        android:id="@+id/answercheck2"
+        android:id="@+id/buttonAnswerCheck"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
@@ -301,8 +301,9 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:text="答え合わせ"
-        app:layout_constraintBottom_toTopOf="@+id/back"
+        app:layout_constraintBottom_toTopOf="@+id/buttonBack"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tableLayout4" />
 

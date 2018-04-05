@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import net.minpro.calculation.R
+import net.minpro.calculation.TestActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             val numberOfQuestion: Int = spinner.selectedItem.toString().toInt()
 
             val intent = Intent(this@MainActivity, TestActivity::class.java)
-            intent.putExtra("numberOfQuestion", numberOfQuestion)
+            intent.putExtra("number", numberOfQuestion)
             startActivity(intent)
         }
     }
