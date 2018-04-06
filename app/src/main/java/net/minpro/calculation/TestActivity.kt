@@ -1,5 +1,6 @@
 package net.minpro.calculation
 
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
@@ -9,20 +10,24 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import kotlinx.android.synthetic.main.activity_test.*
-import net.minpro.calculation.R.id.textViewAnswer
 import java.util.*
+import kotlin.concurrent.schedule
 
 class TestActivity : AppCompatActivity(), View.OnClickListener {
 
-    //問題数
-    var numberOfReamining: Int = 0
+    //残り問題数
+    var numberOfRemaining : Int = 0
     //正解数
-    var numberOfCorrect: Int = 0
+    var numberOfCorrect : Int = 0
+    //問題数
+    var numberOfQuestion : Int = 0
     //soundPool
     lateinit var soundPool : SoundPool
     //サウンドの宣言
     var soundIdCorrect : Int = 0
     var soundIdIncorrect : Int = 0
+    //タイマー
+    lateinit var timer : Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,19 +35,27 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
         //テスト画面が開いたら
         val bundle : Bundle = intent.extras // intent.extrasの戻り値はbundle型
-        val numberOfQuestion = bundle.getInt("number")
+        numberOfQuestion = bundle.getInt("number")
         textViewRemaining.text = numberOfQuestion.toString()
+        numberOfRemaining = numberOfQuestion
+        numberOfCorrect = 0
 
-
-        //todo 答え合わせボタンが押されたら
+        //答え合わせボタンが押されたら
         buttonAnswerCheck.setOnClickListener {
-            answerCheck()
+            if (textViewAnswer.text.toString() != "" && textViewAnswer.text.toString() != "-") {
+                answerCheck()
+            }
         }
 
-        //todo 戻るボタンを押されたら
-        buttonBack.setOnClickListener {  }
+        //戻るボタンを押されたら
+        buttonBack.setOnClickListener {
+//            val intent = Intent(this@TestActivity, MainActivity::class.java)
+            //もう一個画面を開くことになる
+//            startActivity(intent)
+            finish()
+        }
 
-        //todo 電卓ボタンが押されたら
+        //電卓ボタンが押されたら
         button0.setOnClickListener(this)
         button1.setOnClickListener(this)
         button2.setOnClickListener(this)
@@ -58,13 +71,12 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
         //問題をだす
         question()
-
     }
 
     override fun onResume() {
         super.onResume()
 
-        //soundpoolの準備
+        //soundPoolの準備
         soundPool = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     SoundPool.Builder().setAudioAttributes(AudioAttributes.Builder()
                                         .setUsage(AudioAttributes.USAGE_MEDIA) // 用途に応じて変えてくれる
@@ -77,12 +89,16 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
         soundIdCorrect = soundPool.load(this, R.raw.correct1, 1)
         soundIdIncorrect = soundPool.load(this, R.raw.incorrect1, 1)
+
+        //タイマーの準備
+        timer = Timer()
     }
 
     override fun onPause() {
         super.onPause()
 
         soundPool.release()
+        timer.cancel()
     }
 
     //問題を出すメソッド
@@ -119,7 +135,7 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
         //終わったら答えを消して、丸画像orバツ画像を消す
         textViewAnswer.text = ""
-        imageView.visibility = View.VISIBLE
+        imageView.visibility = View.INVISIBLE
     }
 
     //答え合わせをするメソッド
@@ -140,17 +156,17 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
         buttonc.isEnabled = false
 
         //残り問題数を減らす
-        numberOfReamining --
-        textViewRemaining.text = numberOfReamining.toString()
+        numberOfRemaining --
+        textViewRemaining.text = numberOfRemaining.toString()
 
         //まるばつ画像を見えるようにする
         imageView.visibility = View.VISIBLE
 
         //自分の答え
-        val intMyAnswer: Int = textViewAnswer.text.toString().toInt()
+        val intMyAnswer : Int = textViewAnswer.text.toString().toInt()
 
         //本当の答え
-        val intRealAnswer: Int =
+        val intRealAnswer : Int =
                 if (textViewOperator.text == "+") {
                     textViewRight.text.toString().toInt() + textViewLeft.text.toString().toInt()
                 } else {
@@ -166,6 +182,19 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
         } else {
             imageView.setImageResource(R.drawable.x699403)
             soundPool.play(soundIdIncorrect, 1.0f, 1.0f, 0, 0, 1.0f)
+        }
+
+        //正答率の表示
+        val intPoint : Int = ((numberOfCorrect.toDouble() / (numberOfQuestion - numberOfRemaining).toDouble()) * 100).toInt()
+        textViewPoint.text = intPoint.toString()
+
+        //残り問題数がなくなった場合
+        if (numberOfRemaining == 0) {
+            buttonBack.isEnabled = true
+            buttonAnswerCheck.isEnabled = false
+            textViewMessage.text = "テスト終了"
+        } else {
+            timer.schedule(1000, {runOnUiThread { question() }})
         }
     }
 
