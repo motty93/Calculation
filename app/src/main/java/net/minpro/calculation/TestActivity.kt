@@ -20,7 +20,9 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
     var numberOfCorrect: Int = 0
     //soundPool
     lateinit var soundPool : SoundPool
-
+    //サウンドの宣言
+    var soundIdCorrect : Int = 0
+    var soundIdIncorrect : Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,15 +66,23 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
         //soundpoolの準備
         soundPool = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            SoundPool.Builder().setAudioAttributes(AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA) // 用途に応じて変えてくれる
-                    .build())
-                    .setMaxStreams(1) // 同時に流す音楽の数
-                    .build()
-        } else {
-            SoundPool(1, AudioManager.STREAM_MUSIC, 0)
-        }
+                    SoundPool.Builder().setAudioAttributes(AudioAttributes.Builder()
+                                        .setUsage(AudioAttributes.USAGE_MEDIA) // 用途に応じて変えてくれる
+                                        .build())
+                                        .setMaxStreams(1) // 同時に流す音楽の数
+                                        .build()
+                    } else {
+                        SoundPool(1, AudioManager.STREAM_MUSIC, 0)
+                    }
 
+        soundIdCorrect = soundPool.load(this, R.raw.correct1, 1)
+        soundIdIncorrect = soundPool.load(this, R.raw.incorrect1, 1)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        soundPool.release()
     }
 
     //問題を出すメソッド
@@ -152,8 +162,10 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
             numberOfCorrect ++
             textViewCorrect.text = numberOfCorrect.toString()
             imageView.setImageResource(R.drawable.o699403)
+            soundPool.play(soundIdCorrect, 1.0f, 1.0f, 0, 0, 1.0f)
         } else {
             imageView.setImageResource(R.drawable.x699403)
+            soundPool.play(soundIdIncorrect, 1.0f, 1.0f, 0, 0, 1.0f)
         }
     }
 
