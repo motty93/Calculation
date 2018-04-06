@@ -1,13 +1,26 @@
 package net.minpro.calculation
 
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.SoundPool
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import kotlinx.android.synthetic.main.activity_test.*
+import net.minpro.calculation.R.id.textViewAnswer
 import java.util.*
 
 class TestActivity : AppCompatActivity(), View.OnClickListener {
+
+    //問題数
+    var numberOfReamining: Int = 0
+    //正解数
+    var numberOfCorrect: Int = 0
+    //soundPool
+    lateinit var soundPool : SoundPool
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +38,7 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         //todo 戻るボタンを押されたら
-       // buttonBack.setOnClickListener {  }
+        buttonBack.setOnClickListener {  }
 
         //todo 電卓ボタンが押されたら
         button0.setOnClickListener(this)
@@ -43,6 +56,22 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
         //問題をだす
         question()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //soundpoolの準備
+        soundPool = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SoundPool.Builder().setAudioAttributes(AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA) // 用途に応じて変えてくれる
+                    .build())
+                    .setMaxStreams(1) // 同時に流す音楽の数
+                    .build()
+        } else {
+            SoundPool(1, AudioManager.STREAM_MUSIC, 0)
+        }
 
     }
 
@@ -85,7 +114,47 @@ class TestActivity : AppCompatActivity(), View.OnClickListener {
 
     //答え合わせをするメソッド
     private fun answerCheck() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        buttonBack.isEnabled = false
+        buttonAnswerCheck.isEnabled = false
+        button0.isEnabled = false
+        button1.isEnabled = false
+        button2.isEnabled = false
+        button3.isEnabled = false
+        button4.isEnabled = false
+        button5.isEnabled = false
+        button6.isEnabled = false
+        button7.isEnabled = false
+        button8.isEnabled = false
+        button9.isEnabled = false
+        buttonminus.isEnabled = false
+        buttonc.isEnabled = false
+
+        //残り問題数を減らす
+        numberOfReamining --
+        textViewRemaining.text = numberOfReamining.toString()
+
+        //まるばつ画像を見えるようにする
+        imageView.visibility = View.VISIBLE
+
+        //自分の答え
+        val intMyAnswer: Int = textViewAnswer.text.toString().toInt()
+
+        //本当の答え
+        val intRealAnswer: Int =
+                if (textViewOperator.text == "+") {
+                    textViewRight.text.toString().toInt() + textViewLeft.text.toString().toInt()
+                } else {
+                    textViewRight.text.toString().toInt() - textViewLeft.text.toString().toInt()
+                }
+
+        //比較
+        if (intMyAnswer == intRealAnswer) {
+            numberOfCorrect ++
+            textViewCorrect.text = numberOfCorrect.toString()
+            imageView.setImageResource(R.drawable.o699403)
+        } else {
+            imageView.setImageResource(R.drawable.x699403)
+        }
     }
 
     override fun onClick(v: View?) {
